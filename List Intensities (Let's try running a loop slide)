@@ -1,0 +1,24 @@
+
+#---CHECK--------------
+# Make sure you have Sound VOT_English-Spanish & TextGrid VOT_English-Spanish
+# in your objects window.
+#----------------------
+
+selectObject: "Sound VOT_EnglishSpanish"
+plusObject: "TextGrid VOT_EnglishSpanish"
+Extract non-empty intervals: 1, "no"
+
+firstWordID = selected("Sound", 1)
+lastWordID = selected("Sound", 10)
+
+writeInfoLine: "The mean intensities in all extracted words:"
+
+for i from firstWordID to lastWordID
+	selectObject: i
+	soundName$ = selected$ ()
+	meanIntensity$ = Get intensity (dB)
+	appendInfoLine: soundName$ + "	" + meanIntensity$
+endfor
+
+
+exitScript ()
