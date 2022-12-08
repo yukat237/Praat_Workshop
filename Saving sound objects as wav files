@@ -1,8 +1,8 @@
-######################################################
+##########################################################################
 
-# Saving many sound files   Updated: 11/18/2022 Yuka
+# Saving many Sound Objects as wav sound files   Updated: 11/18/2022 Yuka
 
-######################################################
+##########################################################################
 
 ###READ ME###
 #- this script saves sound objects listed in the object window all at once
