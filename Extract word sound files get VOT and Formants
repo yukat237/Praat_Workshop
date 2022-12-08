@@ -1,0 +1,120 @@
+
+#=====Project Title======================================#
+
+#  Extract word sound files, get VOT and Formants
+#             LAST EDIT：2022/12/8
+
+#========================================================#
+
+#-----------------ReadMe---------------------#
+
+# Make sure you have below in your object window
+#	1)Sound Object
+#	2)TextGrid, with word/phoneme/VOT annotated
+
+#--------------------------------------------#
+
+
+
+#####   FORM   #####------------------------------------------------------
+
+
+form Extract word sound files, get VOT & get formants
+	sentence sound_object_name  VOT_EnglishSpanish
+	positive target_intensity 70
+	comment Where the sound should be saved?
+	text folderDir C:\Users\yzt5262\OneDrive - The Pennsylvania State University\PRAAT WORKSHOP (sample data)\Intermediate\Eng-Sp words
+
+endform
+
+
+#####   TABLE   #####------------------------------------------------------
+
+tableID1 = Create Table with column names: "IntDataTable", 0, "word OldIntensity Difference"
+tableID2 = Create Table with column names: "votTable", 0, "word phoneme VOT"
+
+
+#### Extract sounds for each word, normalize dB, and save####---------------------------------------------------
+
+#extracting as Sound objects
+selectObject: "Sound " + sound_object_name$
+plusObject: "TextGrid " + sound_object_name$
+Extract non-empty intervals: 1, "no"
+
+
+#At this point, new sounds are all selected. I wanna know the sequence of IDs of these new sound objects
+firstSdID = selected(1) 
+lastSdID = selected (-1)
+totalNumofWords = lastSdID - firstSdID + 1
+
+
+#Normalizing dB by looping through each sound object, append IntensirtyTable then save the sound at the same time.
+for i from firstSdID to lastSdID
+	selectObject: i
+	nameOfSdObj$ = selected$ ("Sound")
+	oldInt = Get intensity (dB)
+	Scale intensity... 'target_intensity'
+	Save as WAV file: folderDir$ + "\" + nameOfSdObj$ + ".wav"
+	diffOfInt =  70 - oldInt
+	
+	selectObject: tableID1
+	Append row
+	tblrow = Get number of rows
+		Set string value: tblrow, "word", nameOfSdObj$
+		Set numeric value: tblrow, "OldIntensity", oldInt
+		Set numeric value: tblrow, "Difference", diffOfInt 
+
+	#Cleaning
+	selectObject: i
+	Remove
+endfor
+
+
+#### LOOP through VOT intervals to get VOTs ####---------------------------------------------------
+
+#get numbers of words (=aka get numbers of non-empty intervals on word tier)
+selectObject: "TextGrid " + sound_object_name$
+nWords = Get number of intervals: 1  
+nPhon = Get number of intervals: 2 
+nVOT = Get number of intervals: 3 
+
+
+#Loop through Tier3 intervals
+for i to nVOT
+	#select the Tg 
+	selectObject: "TextGrid " + sound_object_name$
+
+	#VOT tier
+	labelT3$ = Get label of interval: 3, i
+		#Get label of interval: tier number, interval number
+
+	if labelT3$ = "VOT"
+		startTime = Get start time of interval: 3, i
+		endTime = Get end time of interval: 3, i
+			#Get end time of interval:tier number, interval number
+		votDur = endTime - startTime
+	
+		#get the word for this VOT
+		intervalNumOfWord = Get interval at time: 1, startTime 
+		wordlabel$ = Get label of interval: 1, intervalNumOfWord
+
+		#get the phoneme for this VOT
+		intervalNumOfPhon =Get interval at time: 2, startTime
+		phonlabel$ = Get label of interval: 2, intervalNumOfPhon
+
+		#save the VOT info
+		selectObject: tableID2
+		Append row
+		tblrow = Get number of rows
+			Set string value: tblrow, "word", wordlabel$
+			Set string value: tblrow, "phoneme", phonlabel$
+			Set numeric value: tblrow, "VOT", votDur
+	
+	endif
+endfor
+
+
+
+exitScript: "success"
+
+
