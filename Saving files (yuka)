@@ -1,0 +1,42 @@
+######################################################
+
+# Saving many sound files   Updated: 11/18/2022 Yuka
+
+######################################################
+
+###READ ME###
+#- this script saves sound objects listed in the object window all at once
+#- name of each sound is the same as the one appeared on the object window
+#- change your directory for your purpose
+#- the meaning of objFROM...from which sound in the object window you want to save
+#- the meaning of objTO...to which sound in the object window you want to save
+
+
+#-----------------Form-----------------#
+
+form
+	comment Participant Info
+		word folderID 
+	comment Object ID Range
+		positive objFROM
+		positive objTO
+endform
+
+#-----------------Setting Directory-----------------#
+
+directoryInt$ = "C:\Users\yzt5262\OneDrive - The Pennsylvania State University\BIGC_annotations\Round1 annotation\" + folderID$
+directoryInt$ = replace$(directoryInt$,"\","/",0)
+
+
+#-------------------EXTRACTION----------------------#
+
+for i from objFROM to objTO
+	selectObject: i
+	turnNum$ = selected$ ("Sound")
+	nowarn Save as WAV file: directoryInt$ + "/" + turnNum$ + ".wav"
+endfor
+
+exitScript: "Done!" 
+
+####====================END=======================####
+
